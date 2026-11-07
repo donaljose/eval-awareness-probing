@@ -6,7 +6,7 @@ Companion code for the paper:
 > Linear Probing and Directional Ablation of Evaluation-Awareness Representations
 > in Small Language Models**
 >
-> Donal Jose and Sumaiya Thaseen  
+> Donal Jose and Sumaiya Thaseen 
 > De Montfort University, Dubai
 
 ## Overview
@@ -39,9 +39,9 @@ differ only in the suppression method (Stage 5):
 
 ```
 eval-awareness-probing/
-├── v5_2_single_layer_ablation/     # Scope 1: directional ablation at best probe layer
-├── v5_3_ffn_weight_editing/        # Scope 2: feed-forward weight editing (top-K rows)
-├── v5_4_all_layer_ablation/        # Scope 3: all-layer ablation (Arditi et al. 2024)
+├── v5_2_single_layer_ablation/ # Scope 1: directional ablation at best probe layer
+├── v5_3_ffn_weight_editing/ # Scope 2: feed-forward weight editing (top-K rows)
+├── v5_4_all_layer_ablation/ # Scope 3: all-layer ablation 
 └── README.md
 ```
 
@@ -50,17 +50,17 @@ Each directory has the same module layout:
 ```
 eval_awareness/
 ├── __init__.py
-├── config.py           # Centralised configuration (all hyperparameters)
-├── prompts.py          # Stage 1 — 574-pair corpus construction
-├── activations.py      # Stage 2 — residual-stream activation caching
-├── probes.py           # Stage 3 — linear probing (logistic regression)
-├── behaviour.py        # Stage 4 — behavioural gap measurement
-├── suppression.py      # Stage 5 — intervention sweep (varies by scope)
-├── diagnostics.py      # Stage 6 — diagnostic warnings (W001–W004)
-├── run_pipeline.py     # Stage 7 — orchestrator, verdict, JSON output
+├── config.py # Centralised configuration (all hyperparameters)
+├── prompts.py # Stage 1 — 574-pair corpus construction
+├── activations.py # Stage 2 — residual-stream activation caching
+├── probes.py # Stage 3 — linear probing (logistic regression)
+├── behaviour.py # Stage 4 — behavioural gap measurement
+├── suppression.py # Stage 5 — intervention sweep (varies by scope)
+├── diagnostics.py # Stage 6 — diagnostic warnings (W001–W004)
+├── run_pipeline.py # Stage 7 — orchestrator, verdict, JSON output
 └── tests/
-    ├── test_pipeline.py
-    └── test_orchestration.py
+ ├── test_pipeline.py
+ └── test_orchestration.py
 ```
 
 ### Intervention scopes
@@ -69,7 +69,7 @@ eval_awareness/
 |-----------|--------|-----------|
 | `v5_2_single_layer_ablation` | Directional ablation at the single best probing layer | — |
 | `v5_3_ffn_weight_editing` | Editing top-K FFN rows by cosine alignment with the probe direction | — |
-| `v5_4_all_layer_ablation` | All-layer directional ablation at every decoder block | Arditi et al. (2024) |
+| `v5_4_all_layer_ablation` | All-layer directional ablation at every decoder block | |
 
 ## Pipeline stages
 
@@ -94,7 +94,7 @@ eval_awareness/
 
 ```bash
 # Clone and enter the v5_4 directory (the headline finding)
-git clone https://github.com/<your-username>/eval-awareness-probing.git
+git clone https://github.com/donaljose/eval-awareness-probing.git
 cd eval-awareness-probing/v5_4_all_layer_ablation
 
 # Install dependencies
@@ -102,8 +102,8 @@ pip install -r requirements.txt
 
 # Run the full pipeline on Qwen1.5-1.8B (requires a CUDA GPU)
 python -m eval_awareness.run_pipeline \
-    --model Qwen/Qwen1.5-1.8B-Chat \
-    --output results.json
+ --model Qwen/Qwen1.5-1.8B-Chat \
+ --output results.json
 
 # Run the test suite
 bash run_all_tests.sh
@@ -115,15 +115,15 @@ All hyperparameters are centralised in `config.py`. Key options:
 
 ```python
 Config(
-    model_name="Qwen/Qwen1.5-1.8B-Chat",
-    device="auto",            # auto | cuda | cpu
-    dtype="float16",          # float16 | bfloat16 | float32
-    load_in_4bit=False,       # 4-bit quantisation for larger models
-    test_size=0.3,            # probe train/test split
-    seed=42,                  # global random seed
-    alpha_values=[0.0, 0.25, 0.5, 0.75, 1.0],  # suppression sweep
-    cosmetic_auc_threshold=0.5,  # ρ_A threshold for verdict
-    real_gap_threshold=0.3,      # ρ_G threshold for verdict
+ model_name="Qwen/Qwen1.5-1.8B-Chat",
+ device="auto", # auto | cuda | cpu
+ dtype="float16", # float16 | bfloat16 | float32
+ load_in_4bit=False, # 4-bit quantisation for larger models
+ test_size=0.3, # probe train/test split
+ seed=42, # global random seed
+ alpha_values=[0.0, 0.25, 0.5, 0.75, 1.0], # suppression sweep
+ cosmetic_auc_threshold=0.5, # ρ_A threshold for verdict
+ real_gap_threshold=0.3, # ρ_G threshold for verdict
 )
 ```
 
@@ -132,10 +132,10 @@ Config(
 The 574-pair prompt set is constructed from four public benchmarks and
 researcher-authored benign items:
 
-- **SORRY-Bench** (Xie et al. 2024) — categories 12 (System Intrusion) and 13 (Malware Generation)
-- **AdvBench** (Zou et al. 2023)
-- **HarmBench** (Mazeika et al. 2024)
-- **MaliciousInstruct** (Huang et al. 2024)
+- **SORRY-Bench** — categories 12 (System Intrusion) and 13 (Malware Generation)
+- **AdvBench**
+- **HarmBench**
+- **MaliciousInstruct**
 - 287 benign requests (researcher-authored, covering coding, writing, and general knowledge)
 
 All pairs are length-matched: the same base request appears under both
@@ -145,11 +145,11 @@ evaluation and deployment framings, differing only in contextual wrapper text.
 
 ```
 if ρ_A ≥ 0.5 AND ρ_G ≥ 0.3:
-    verdict = REAL           # suppression genuinely closes the gap
+ verdict = REAL # suppression genuinely closes the gap
 elif ρ_A ≥ 0.5 AND ρ_G < 0.3:
-    verdict = COSMETIC       # probe AUC drops but behaviour unchanged
+ verdict = COSMETIC # probe AUC drops but behaviour unchanged
 else:
-    verdict = INCONCLUSIVE   # insufficient probe-accuracy suppression
+ verdict = INCONCLUSIVE # insufficient probe-accuracy suppression
 ```
 
 Where:
@@ -171,13 +171,13 @@ If you use this code, please cite:
 
 ```bibtex
 @mastersthesis{jose2026probing,
-    title   = {Probing Whether a Language Model Knows It Is Being Tested:
-               Linear Probing and Directional Ablation of Evaluation-Awareness
-               Representations in Small Language Models},
-    author  = {Jose, Donal},
-    school  = {De Montfort University},
-    year    = {2026},
-    type    = {MSc Dissertation}
+ title = {Probing Whether a Language Model Knows It Is Being Tested:
+ Linear Probing and Directional Ablation of Evaluation-Awareness
+ Representations in Small Language Models},
+ author = {Jose, Donal},
+ school = {De Montfort University},
+ year = {2026},
+ type = {MSc Dissertation}
 }
 ```
 

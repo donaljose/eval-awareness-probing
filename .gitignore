@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PyTest
+.pytest_cache/
+
+# Results (large JSON files)
+runs/
+results/
+results_*/
+*.json
+!eval_awareness/tests/_orch_out/results.json
+
+# Model weights and checkpoints
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Windows
+*.bat

@@ -4,5 +4,5 @@ d = json.load(open(sys.argv[1]))
 random.seed(0)
 sample = random.sample(d['per_prompt'], 10)
 for r in sample:
-    print(f"[{r['framing']:10}] refused={r['refused']}: {r['response'][:200]!r}")
-    print()
+ print(f"[{r['framing']:10}] refused={r['refused']}: {r['response'][:200]!r}")
+ print()

@@ -16,37 +16,37 @@ from eval_awareness.tests.test_pipeline import StubModel
 
 # --- stub tokenizer -------------------------------------------------
 class StubTok:
-    pad_token = "<pad>"; eos_token = "</s>"; pad_token_id = 0
-    padding_side = "right"; chat_template = None
-    def __call__(self, texts, **kw):
-        # Text-dependent ids so eval/deploy framings differ in activations,
-        # mimicking a real tokenizer well enough to exercise the pipeline.
-        L = 6
-        rows = []
-        for t in texts:
-            is_eval = ("EVALUATION" in t.upper() or "BENCHMARK" in t.upper()
-                       or "evaluated" in t or "TEST CASE" in t.upper())
-            base = 5 if is_eval else 1
-            rows.append([base + (hash(t) % 3)] * L)
-        ids = torch.tensor(rows, dtype=torch.long)
-        return {"input_ids": ids, "attention_mask": torch.ones_like(ids)}
-    def decode(self, ids, **kw): return "I can't help with that."
+ pad_token = "<pad>"; eos_token = "</s>"; pad_token_id = 0
+ padding_side = "right"; chat_template = None
+ def __call__(self, texts, **kw):
+ # Text-dependent ids so eval/deploy framings differ in activations,
+ # mimicking a real tokenizer well enough to exercise the pipeline.
+ L = 6
+ rows = []
+ for t in texts:
+ is_eval = ("EVALUATION" in t.upper() or "BENCHMARK" in t.upper()
+ or "evaluated" in t or "TEST CASE" in t.upper())
+ base = 5 if is_eval else 1
+ rows.append([base + (hash(t) % 3)] * L)
+ ids = torch.tensor(rows, dtype=torch.long)
+ return {"input_ids": ids, "attention_mask": torch.ones_like(ids)}
+ def decode(self, ids, **kw): return "I can't help with that."
 
 # --- stub model that accepts **kwargs like HF and can generate -------
 D = 8
 class HFStub(StubModel):
-    def __init__(self):
-        super().__init__(n_layers=3, d_model=D)
-        self.embed = nn.Embedding(10, D)
-    def forward(self, input_ids=None, attention_mask=None, **kw):
-        x = self.embed(input_ids)
-        for blk in self.model.layers:
-            x = blk(x)[0]
-        return types.SimpleNamespace(logits=x)
-    def generate(self, input_ids=None, attention_mask=None, **kw):
-        n, L = input_ids.shape
-        new = kw.get("max_new_tokens", 8)
-        return torch.ones(n, L + new, dtype=torch.long)
+ def __init__(self):
+ super().__init__(n_layers=3, d_model=D)
+ self.embed = nn.Embedding(10, D)
+ def forward(self, input_ids=None, attention_mask=None, **kw):
+ x = self.embed(input_ids)
+ for blk in self.model.layers:
+ x = blk(x)[0]
+ return types.SimpleNamespace(logits=x)
+ def generate(self, input_ids=None, attention_mask=None, **kw):
+ n, L = input_ids.shape
+ new = kw.get("max_new_tokens", 8)
+ return torch.ones(n, L + new, dtype=torch.long)
 
 stub_tok, stub_model = StubTok(), HFStub()
 run_pipeline.__dict__.setdefault('_orig', None)
