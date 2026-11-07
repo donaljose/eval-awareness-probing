@@ -1,0 +1,13 @@
+# Core
+torch>=2.0.0
+transformers>=4.40.0
+scikit-learn>=1.3.0
+numpy>=1.24.0
+
+# Tokenizer backends used by Qwen / Llama
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+accelerate>=0.26.0
+
+# Optional: progress bars during long sweeps
+tqdm>=4.65.0
